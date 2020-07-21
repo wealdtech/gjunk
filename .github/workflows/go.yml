@@ -38,20 +38,20 @@ jobs:
       id: env
       run: |
        echo '::set-env name=GO111MODULE::on'
+       # Release tag comes from the github reference.
        RELEASE_TAG=$(echo ${GITHUB_REF} | sed -e 's!.*/!!')
        echo "::set-env name=RELEASE_TAG::${RELEASE_TAG}"
        echo "::set-output name=RELEASE_TAG::${RELEASE_TAG}"
-       # Ensure the release tag is set and a version.
+       # Ensure the release tag has expected format.
        echo ${RELEASE_TAG} | grep -q '^v' || exit 1
-
-    - name: Display env
-      run: |
-       env
-       echo Release tag is ${RELEASE_TAG}
+       # Release version is same as release tag without leading 'v'.
+       RELEASE_VERSION=$(echo ${GITHUB_REF} | sed -e 's!.*/v!!')
+       echo "::set-env name=RELEASE_VERSION::${RELEASE_VERSION}"
+       echo "::set-output name=RELEASE_VERSION::${RELEASE_VERSION}"
 
     - name: Tar file
       run: |
-       tar zcf gjunk-${RELEASE_TAG}-linux-amd64.tar.gz gjunk
+       tar zcf gjunk-${RELEASE_VERSION}-linux-amd64.tar.gz gjunk
 
     - name: Create release
       id: create_release
@@ -60,7 +60,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        release_name: Release ${{ env.RELEASE_VERSION }}
         draft: true
         prerelease: true
        
@@ -71,6 +71,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gjunk-${{ env.RELEASE_TAG }}-linux-amd64.tar.gz
-        asset_name: gjunk-${{ env.RELEASE_TAG }}-linux-amd64.tar.gz
+        asset_path: ./gjunk-${{ env.RELEASE_VERSION }}-linux-amd64.tar.gz
+        asset_name: gjunk-${{ env.RELEASE_VERSION }}-linux-amd64.tar.gz
         asset_content_type: application/gzip
