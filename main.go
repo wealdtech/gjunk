@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/minio/sha256-simd"
 )
 
+var JunkVersion = "development (unreleased)"
+
 func main() {
-	hash := sha256.New()
-	fmt.Printf("%v\n", hash)
+	fmt.Println(JunkVersion)
 }
