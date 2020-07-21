@@ -61,8 +61,8 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ env.RELEASE_VERSION }}
-        draft: true
-        prerelease: true
+        draft: false
+        prerelease: false
        
     - name: Upload linux AMD64 tgz file
       id: upload-release-asset-linux-amd64
